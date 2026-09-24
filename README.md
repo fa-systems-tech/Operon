@@ -149,8 +149,8 @@ These technologies are the proposed architecture from the project plan and shoul
 Clone the project using Git:
 
 ```bash
-git clone https://github.com/2Nony3/SOEN-490.git
-cd SOEN-490
+git clone https://github.com/fa-systems-tech/Operon.git
+cd Operon
 ```
 
 ## 2. Configure the Development Environment
@@ -198,7 +198,7 @@ Follow the course requirements for acknowledging AI-assisted contributions.
 
 # Wiki Table of Contents
 
-The [Operon GitHub Wiki](https://github.com/2Nony3/SOEN-490/wiki) contains the project's technical documentation, planning records, and course deliverables.
+The [Operon GitHub Wiki](https://github.com/fa-systems-tech/Operon/wiki) contains the project's technical documentation, planning records, and course deliverables.
 
 | # | Documentation |
 |---|---|
@@ -220,7 +220,7 @@ The [Operon GitHub Wiki](https://github.com/2Nony3/SOEN-490/wiki) contains the p
 | 16 | Deployment Plan and Infrastructure |
 | 17 | Missing Knowledge and Independent Learning |
 
-Visit the [GitHub Wiki](https://github.com/2Nony3/SOEN-490/wiki) to access the individual pages.
+Visit the [GitHub Wiki](https://github.com/fa-systems-tech/Operon/wiki) to access the individual pages.
 
 ---
 
