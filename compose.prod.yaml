@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: operon_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_BASE_URL: http://localhost:3000/api
+    depends_on:
+      - backend
+    networks:
+      - operon_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: operon_backend
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      AI_PROVIDER: dmr
+      DMR_BASE_URL: http://model:8000
+      DMR_MODEL_NAME: ai/smollm2
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=operon_prod;Username=operon_user;Password=${DB_PASSWORD}
+      BACKGROUND_WORKER_ENABLED: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      model:
+        condition: service_started
+    networks:
+      - operon_network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: operon_postgres
+    environment:
+      POSTGRES_DB: operon_prod
+      POSTGRES_USER: operon_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - operon_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U operon_user -d operon_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  model:
+    image: scratch
+    container_name: operon_model
+    networks:
+      - operon_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  operon_network:
+    driver: bridge

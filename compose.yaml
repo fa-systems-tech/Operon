@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # Frontend: React + TypeScript application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: operon_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080
+    depends_on:
+      - backend
+    networks:
+      - operon_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Backend: ASP.NET Core API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: operon_backend
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      
+      # AI Provider Configuration - switch between local (DMR) and cloud providers
+      AI_PROVIDER: ${AI_PROVIDER:-dmr}
+      
+      # Docker Model Runner (DMR) - Local model serving
+      DMR_BASE_URL: http://model:8000
+      DMR_MODEL_NAME: ${DMR_MODEL_NAME:-ai/smollm2}
+      DMR_CONTEXT_SIZE: ${DMR_CONTEXT_SIZE:-4096}
+      
+      # Cloud Provider Fallback (Anthropic, OpenAI, etc.)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      
+      # Database
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=operon_dev;Username=operon_user;Password=operon_password
+      
+      # Background Job Configuration
+      BACKGROUND_WORKER_ENABLED: "true"
+      MAX_CONCURRENT_JOBS: "3"
+      JOB_TIMEOUT_SECONDS: "300"
+      JOB_RETRY_ATTEMPTS: "3"
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+      model:
+        condition: service_started
+    volumes:
+      - ./backend/src:/app/src
+    networks:
+      - operon_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:17-alpine
+    container_name: operon_postgres
+    environment:
+      POSTGRES_DB: operon_dev
+      POSTGRES_USER: operon_user
+      POSTGRES_PASSWORD: operon_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - operon_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U operon_user -d operon_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Docker Model Runner - Local AI Model Service
+  model:
+    image: scratch
+    container_name: operon_model
+    labels:
+      - "docker.metadata-description=Docker Model Runner integration for Operon"
+    networks:
+      - operon_network
+    # DMR runs as a Docker Engine feature, not a traditional service
+    # This is a placeholder to establish the service name and network connectivity
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  operon_network:
+    driver: bridge
