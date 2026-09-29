@@ -21,8 +21,8 @@ The project is developed over three major releases during the 2026–2027 academ
 
 | Release | Date | Demo |
 |---|---|---|
-| Release 1 | November 10, 2026 | Coming soon |
-| Release 2 | January 29, 2027 | Coming soon |
+| Release 1 | November 17, 2026 | Coming soon |
+| Release 2 | February 5, 2027 | Coming soon |
 | Final Release | April 13, 2027 | Coming soon |
 
 Demo recordings, deployment links, and release notes will be added as each release is completed.
