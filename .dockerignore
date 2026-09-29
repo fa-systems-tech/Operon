@@ -1,0 +1,14 @@
+backend/
+frontend/
+node_modules/
+bin/
+obj/
+dist/
+.DS_Store
+*.swp
+*.swo
+.env
+.env.local
+*.log
+.vscode/
+.idea/
